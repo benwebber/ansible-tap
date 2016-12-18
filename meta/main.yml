@@ -1,0 +1,13 @@
+---
+galaxy_info:
+  author: Ben Webber
+  description: Test Anything Protocol (TAP) producer callback plugin
+  license: MIT
+  min_ansible_version: 2.0
+  categories:
+    - TAP
+    - ansible
+    - callback
+    - plugin
+    - test
+    - tests
