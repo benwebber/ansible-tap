@@ -4,10 +4,17 @@ galaxy_info:
   description: Test Anything Protocol (TAP) producer callback plugin
   license: MIT
   min_ansible_version: 2.0
-  categories:
+  galaxy_tags:
     - TAP
     - ansible
     - callback
     - plugin
     - test
     - tests
+  platforms:
+    - name: GenericLinux
+      versions:
+        - any
+    - name: GenericUNIX
+      versions:
+        - any
