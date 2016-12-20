@@ -74,10 +74,7 @@ class CallbackModule(CallbackBase):
         Render a passed test.
         """
         cleaned_tags = cls._clean_tags(result._task.tags)
-        if Tag.TODO.value in cleaned_tags:
-            directive = '# TODO'
-        else:
-            directive = None
+        directive = '# TODO' if Tag.TODO.value in cleaned_tags else None
         description = cls._describe(result)
         return cls._tap(cls.OK, description, directive=directive)
 
@@ -87,7 +84,7 @@ class CallbackModule(CallbackBase):
         Render a skipped test.
         """
         description = cls._describe(result)
-        directive = '# SKIP {0}'.format(result._result['skip_reason'])
+        directive = '# SKIP {}'.format(result._result['skip_reason'])
         return cls._tap(cls.OK, description, directive=directive)
 
     @classmethod
@@ -96,10 +93,7 @@ class CallbackModule(CallbackBase):
         Render a failed test.
         """
         cleaned_tags = cls._clean_tags(result._task.tags)
-        if Tag.TODO.value in cleaned_tags:
-            directive = '# TODO'
-        else:
-            directive = None
+        directive = '# TODO' if Tag.TODO.value in cleaned_tags else None
         description = cls._describe(result)
         return cls._tap(cls.NOT_OK, description, directive=directive)
 
@@ -109,9 +103,9 @@ class CallbackModule(CallbackBase):
         Construct a test line description based on the name of the Ansible
         module and task name.
         """
-        description = '{0}'.format(result._task.action)
+        description = '{}'.format(result._task.action)
         if result._task.name:
-            description = '{0}: {1}'.format(description, result._task.name)
+            description = '{}: {}'.format(description, result._task.name)
         return description
 
     @staticmethod
@@ -119,9 +113,9 @@ class CallbackModule(CallbackBase):
         """
         Render a TAP test line.
         """
-        test_line = '{0} - {1}'.format(status, description)
+        test_line = '{} - {}'.format(status, description)
         if directive:
-            test_line += ' {0}'.format(directive)
+            test_line += ' {}'.format(directive)
         lines = [test_line]
         return '\n'.join(lines)
 
@@ -136,21 +130,18 @@ class CallbackModule(CallbackBase):
         self._display.display(self.not_ok(result))
         cleaned_tags = self._clean_tags(result._task.tags)
         # Print reason for failure if this was not an expected failure.
-        if Tag.TODO.value not in cleaned_tags:
+        status = TestResult.EXPECTED if Tag.TODO.value in cleaned_tags else TestResult.FAILED
+        if status == TestResult.FAILED:
             self._display.display(indent(dump_yaml(result._result)))
-            self.counter.update(TestResult.EXPECTED.value)
-            return
-        self.counter.update(TestResult.FAILED.value)
+        self.counter.update(status.value)
 
     def v2_runner_on_ok(self, result):
         cleaned_tags = self._clean_tags(result._task.tags)
         if Tag.DIAGNOSTIC.value in cleaned_tags:
-            self._display.display('# {0}'.format(self._describe(result)))
+            self._display.display('# {}'.format(self._describe(result)))
             return
-        if Tag.TODO.value in cleaned_tags:
-            self.counter.update(TestResult.UNEXPECTED.value)
-        else:
-            self.counter.update(TestResult.PASSED.value)
+        status = TestResult.UNEXPECTED if Tag.TODO.value in cleaned_tags else TestResult.PASSED
+        self.counter.update(status.value)
         self._display.display(self.ok(result))
 
     def v2_runner_on_skipped(self, result):
