@@ -43,6 +43,11 @@ class TestResult(object):
     SKIPPED = ('skipped',)
 
 
+class Tag(object):
+    TODO = 'todo'
+    DIAGNOSTIC = 'diagnostic'
+
+
 class CallbackModule(CallbackBase):
     """
     TAP output for Ansible.
@@ -79,7 +84,8 @@ class CallbackModule(CallbackBase):
         """
         Print a passed test.
         """
-        if 'TODO' in result._task.tags:
+        cleaned_tags = self._clean_tags(result._task.tags)
+        if Tag.TODO in cleaned_tags:
             directive = '# TODO'
         else:
             directive = None
@@ -100,7 +106,8 @@ class CallbackModule(CallbackBase):
         """
         Print a failed test.
         """
-        if 'TODO' in result._task.tags:
+        cleaned_tags = self._clean_tags(result._task.tags)
+        if Tag.TODO in cleaned_tags:
             directive = '# TODO'
         else:
             directive = None
@@ -118,23 +125,29 @@ class CallbackModule(CallbackBase):
         lines = [test_line]
         return '\n'.join(lines)
 
+    @staticmethod
+    def _clean_tags(tags):
+        return [tag.lower() for tag in tags]
+
     def v2_playbook_on_start(self, playbook):
         self._display.display('TAP version 13')
 
     def v2_runner_on_failed(self, result, ignore_errors=False):
         self.not_ok(result)
+        cleaned_tags = self._clean_tags(result._task.tags)
         # Print reason for failure if this was not an expected failure.
-        if 'TODO' not in result._task.tags:
+        if Tag.TODO not in cleaned_tags:
             self._display.display(indent(dump_yaml(result._result)))
             self.counter.update(TestResult.EXPECTED)
             return
         self.counter.update(TestResult.FAILED)
 
     def v2_runner_on_ok(self, result):
-        if 'diagnostic' in result._task.tags:
+        cleaned_tags = self._clean_tags(result._task.tags)
+        if Tag.DIAGNOSTIC in cleaned_tags:
             self._display.display('# {0}'.format(self.description(result)))
             return
-        if 'TODO' in result._task.tags:
+        if Tag.TODO in cleaned_tags:
             self.counter.update(TestResult.UNEXPECTED)
         else:
             self.counter.update(TestResult.PASSED)
