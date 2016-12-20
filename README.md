@@ -4,6 +4,11 @@
 
 This callback plugin allows you to write TAP test suites as Ansible playbooks. Consider it an Ansible-only alternative to [Serverspec](http://serverspec.org/) and [Testinfra](https://testinfra.readthedocs.io/).
 
+## Requirements
+
+* Ansible 2
+* Python 2.7+
+
 ## Install
 
 While you can't install this plugin directly using `ansible-galaxy`, you can use `ansible-galaxy` to download it:
