@@ -13,6 +13,7 @@ import sys
 import yaml
 
 from ansible import constants as C
+from ansible.executor.task_queue_manager import TaskQueueManager
 from ansible.parsing.yaml.dumper import AnsibleDumper
 from ansible.plugins.callback import CallbackBase
 from ansible.utils.color import (
@@ -148,3 +149,6 @@ class CallbackModule(CallbackBase):
 
     def v2_playbook_on_stats(self, stats):
         self._display.display('1..{}'.format(sum(self.counter.values())))
+        # Because tests set `ignore_errors`, we need to call exit() ourselves.
+        if self.counter['failed']:
+            sys.exit(TaskQueueManager.RUN_FAILED_HOSTS)
