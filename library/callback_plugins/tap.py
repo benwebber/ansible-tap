@@ -33,6 +33,18 @@ def dump_yaml(data, **kwargs):
                      explicit_end=True, **kwargs).strip()
 
 
+def clean_tags(tags):
+    return [tag.lower() for tag in tags]
+
+
+def is_todo(task):
+    return Tag.TODO.value in clean_tags(task.tags)
+
+
+def is_diagnostic(task):
+    return Tag.DIAGNOSTIC.value in clean_tags(task.tags)
+
+
 class TestResult(Enum):
     PASSED = ('passed',)
     FAILED = ('failed',)
@@ -73,8 +85,7 @@ class CallbackModule(CallbackBase):
         """
         Render a passed test.
         """
-        cleaned_tags = cls._clean_tags(result._task.tags)
-        directive = '# TODO' if Tag.TODO.value in cleaned_tags else None
+        directive = '# TODO' if is_todo(result._task) else None
         description = cls._describe(result)
         return cls._tap(cls.OK, description, directive=directive)
 
@@ -92,8 +103,7 @@ class CallbackModule(CallbackBase):
         """
         Render a failed test.
         """
-        cleaned_tags = cls._clean_tags(result._task.tags)
-        directive = '# TODO' if Tag.TODO.value in cleaned_tags else None
+        directive = '# TODO' if is_todo(result._task) else None
         description = cls._describe(result)
         return cls._tap(cls.NOT_OK, description, directive=directive)
 
@@ -119,28 +129,22 @@ class CallbackModule(CallbackBase):
         lines = [test_line]
         return '\n'.join(lines)
 
-    @staticmethod
-    def _clean_tags(tags):
-        return [tag.lower() for tag in tags]
-
     def v2_playbook_on_start(self, playbook):
         self._display.display('TAP version 13')
 
     def v2_runner_on_failed(self, result, ignore_errors=False):
         self._display.display(self.not_ok(result))
-        cleaned_tags = self._clean_tags(result._task.tags)
         # Print reason for failure if this was not an expected failure.
-        status = TestResult.EXPECTED if Tag.TODO.value in cleaned_tags else TestResult.FAILED
+        status = TestResult.EXPECTED if is_todo(result._task) else TestResult.FAILED
         if status == TestResult.FAILED:
             self._display.display(indent(dump_yaml(result._result)))
         self.counter.update(status.value)
 
     def v2_runner_on_ok(self, result):
-        cleaned_tags = self._clean_tags(result._task.tags)
-        if Tag.DIAGNOSTIC.value in cleaned_tags:
+        if is_diagnostic(result._task):
             self._display.display('# {}'.format(self._describe(result)))
             return
-        status = TestResult.UNEXPECTED if Tag.TODO.value in cleaned_tags else TestResult.PASSED
+        status = TestResult.UNEXPECTED if is_todo(result._task) else TestResult.PASSED
         self.counter.update(status.value)
         self._display.display(self.ok(result))
 
