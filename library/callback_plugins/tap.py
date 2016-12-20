@@ -68,7 +68,43 @@ class CallbackModule(CallbackBase):
         # tasks (tagged with 'diagnostic') from the final test count.
         self.counter = collections.Counter()
 
-    def description(self, result):
+    @classmethod
+    def ok(cls, result):
+        """
+        Render a passed test.
+        """
+        cleaned_tags = cls._clean_tags(result._task.tags)
+        if Tag.TODO.value in cleaned_tags:
+            directive = '# TODO'
+        else:
+            directive = None
+        description = cls._describe(result)
+        return cls._tap(cls.OK, description, directive=directive)
+
+    @classmethod
+    def skip(cls, result):
+        """
+        Render a skipped test.
+        """
+        description = cls._describe(result)
+        directive = '# SKIP {0}'.format(result._result['skip_reason'])
+        return cls._tap(cls.OK, description, directive=directive)
+
+    @classmethod
+    def not_ok(cls, result):
+        """
+        Render a failed test.
+        """
+        cleaned_tags = cls._clean_tags(result._task.tags)
+        if Tag.TODO.value in cleaned_tags:
+            directive = '# TODO'
+        else:
+            directive = None
+        description = cls._describe(result)
+        return cls._tap(cls.NOT_OK, description, directive=directive)
+
+    @staticmethod
+    def _describe(result):
         """
         Construct a test line description based on the name of the Ansible
         module and task name.
@@ -78,44 +114,10 @@ class CallbackModule(CallbackBase):
             description = '{0}: {1}'.format(description, result._task.name)
         return description
 
-    def ok(self, result):
+    @staticmethod
+    def _tap(status, description, directive=None):
         """
-        Print a passed test.
-        """
-        cleaned_tags = self._clean_tags(result._task.tags)
-        if Tag.TODO.value in cleaned_tags:
-            directive = '# TODO'
-        else:
-            directive = None
-        description = self.description(result)
-        output = self._tap(self.OK, description, directive=directive)
-        self._display.display(output)
-
-    def skip(self, result):
-        """
-        Print a skipped test.
-        """
-        description = self.description(result)
-        directive = '# SKIP {0}'.format(result._result['skip_reason'])
-        output = self._tap(self.OK, description, directive=directive)
-        self._display.display(output)
-
-    def not_ok(self, result):
-        """
-        Print a failed test.
-        """
-        cleaned_tags = self._clean_tags(result._task.tags)
-        if Tag.TODO.value in cleaned_tags:
-            directive = '# TODO'
-        else:
-            directive = None
-        description = self.description(result)
-        output = self._tap(self.NOT_OK, description, directive=directive)
-        self._display.display(output)
-
-    def _tap(self, status, description, directive=None):
-        """
-        Print a TAP test line.
+        Render a TAP test line.
         """
         test_line = '{0} - {1}'.format(status, description)
         if directive:
@@ -131,7 +133,7 @@ class CallbackModule(CallbackBase):
         self._display.display('TAP version 13')
 
     def v2_runner_on_failed(self, result, ignore_errors=False):
-        self.not_ok(result)
+        self._display.display(self.not_ok(result))
         cleaned_tags = self._clean_tags(result._task.tags)
         # Print reason for failure if this was not an expected failure.
         if Tag.TODO.value not in cleaned_tags:
@@ -143,16 +145,16 @@ class CallbackModule(CallbackBase):
     def v2_runner_on_ok(self, result):
         cleaned_tags = self._clean_tags(result._task.tags)
         if Tag.DIAGNOSTIC.value in cleaned_tags:
-            self._display.display('# {0}'.format(self.description(result)))
+            self._display.display('# {0}'.format(self._describe(result)))
             return
         if Tag.TODO.value in cleaned_tags:
             self.counter.update(TestResult.UNEXPECTED.value)
         else:
             self.counter.update(TestResult.PASSED.value)
-        self.ok(result)
+        self._display.display(self.ok(result))
 
     def v2_runner_on_skipped(self, result):
-        self.skip(result)
+        self._display.display(self.skip(result))
         self.counter.update(TestResult.SKIPPED.value)
 
     def v2_playbook_on_stats(self, stats):
