@@ -16,11 +16,7 @@ from ansible import constants as C
 from ansible.executor.task_queue_manager import TaskQueueManager
 from ansible.parsing.yaml.dumper import AnsibleDumper
 from ansible.plugins.callback import CallbackBase
-from ansible.utils.color import (
-    colorize,
-    hostcolor,
-    stringc,
-)
+from ansible.utils.color import stringc
 
 __metaclass__ = type
 
@@ -33,7 +29,8 @@ def indent(text, indent=2, char=' '):
 def dump_yaml(data, **kwargs):
     return '\n'.join([
         '---',
-        yaml.dump(data, Dumper=AnsibleDumper, allow_unicode=True, default_flow_style=False, **kwargs).strip(),
+        yaml.dump(data, Dumper=AnsibleDumper, allow_unicode=True,
+                  default_flow_style=False, **kwargs).strip(),
         '...',
     ])
 
@@ -127,7 +124,7 @@ class CallbackModule(CallbackBase):
     def v2_runner_on_failed(self, result, ignore_errors=False):
         self.not_ok(result)
         # Print reason for failure if this was not an expected failure.
-        if not 'TODO' in result._task.tags:
+        if 'TODO' not in result._task.tags:
             self._display.display(indent(dump_yaml(result._result)))
             self.counter.update(TestResult.EXPECTED)
             return
