@@ -8,9 +8,9 @@ from __future__ import (
 )
 
 import collections
+from enum import Enum
 import sys
 
-from enum import Enum
 import yaml
 
 from ansible import constants as C
