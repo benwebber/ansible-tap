@@ -141,7 +141,7 @@ ok - assert: skipped # SKIP Conditional check failed
 
 ## Example
 
-The [tests/]() directory contains an example test suite which produces all possible test results.
+The [`tests/`](tests/) directory contains an example test suite which produces all possible test results.
 
 After installing the plugin, run the test suite with:
 
