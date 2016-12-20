@@ -141,39 +141,7 @@ ok - assert: skipped # SKIP Conditional check failed
 
 ## Example
 
-Here is an example test suite which produces all possible test results:
-
-```yaml
-- hosts: localhost
-  gather_facts: false
-  tasks:
-    - name: set up next test
-      command: 'true'
-      register: true_
-      tags:
-        - diagnostic
-
-    - name: should succeed
-      assert:
-        that: true_.rc == 0
-
-    - name: should fail
-      assert:
-        that: false
-      ignore_errors: true
-
-    - name: should fail
-      assert:
-        that: false
-      ignore_errors: true
-      tags:
-        - TODO
-
-    - name: should skip
-      assert:
-        that: false
-      when: false
-```
+The [tests/]() directory contains an example test suite which produces all possible test results.
 
 After installing the plugin, run the test suite with:
 
