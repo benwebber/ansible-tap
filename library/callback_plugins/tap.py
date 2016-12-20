@@ -28,12 +28,9 @@ def indent(text, indent=2, char=' '):
 
 
 def dump_yaml(data, **kwargs):
-    return '\n'.join([
-        '---',
-        yaml.dump(data, Dumper=AnsibleDumper, allow_unicode=True,
-                  default_flow_style=False, **kwargs).strip(),
-        '...',
-    ])
+    return yaml.dump(data, Dumper=AnsibleDumper, allow_unicode=True,
+                     default_flow_style=False, explicit_start=True,
+                     explicit_end=True, **kwargs).strip()
 
 
 class TestResult(Enum):
