@@ -10,6 +10,7 @@ from __future__ import (
 import collections
 import sys
 
+from enum import Enum
 import yaml
 
 from ansible import constants as C
@@ -35,7 +36,7 @@ def dump_yaml(data, **kwargs):
     ])
 
 
-class TestResult(object):
+class TestResult(Enum):
     PASSED = ('passed',)
     FAILED = ('failed',)
     EXPECTED = ('expected',)
@@ -43,7 +44,7 @@ class TestResult(object):
     SKIPPED = ('skipped',)
 
 
-class Tag(object):
+class Tag(Enum):
     TODO = 'todo'
     DIAGNOSTIC = 'diagnostic'
 
@@ -85,7 +86,7 @@ class CallbackModule(CallbackBase):
         Print a passed test.
         """
         cleaned_tags = self._clean_tags(result._task.tags)
-        if Tag.TODO in cleaned_tags:
+        if Tag.TODO.value in cleaned_tags:
             directive = '# TODO'
         else:
             directive = None
@@ -107,7 +108,7 @@ class CallbackModule(CallbackBase):
         Print a failed test.
         """
         cleaned_tags = self._clean_tags(result._task.tags)
-        if Tag.TODO in cleaned_tags:
+        if Tag.TODO.value in cleaned_tags:
             directive = '# TODO'
         else:
             directive = None
@@ -136,26 +137,26 @@ class CallbackModule(CallbackBase):
         self.not_ok(result)
         cleaned_tags = self._clean_tags(result._task.tags)
         # Print reason for failure if this was not an expected failure.
-        if Tag.TODO not in cleaned_tags:
+        if Tag.TODO.value not in cleaned_tags:
             self._display.display(indent(dump_yaml(result._result)))
-            self.counter.update(TestResult.EXPECTED)
+            self.counter.update(TestResult.EXPECTED.value)
             return
-        self.counter.update(TestResult.FAILED)
+        self.counter.update(TestResult.FAILED.value)
 
     def v2_runner_on_ok(self, result):
         cleaned_tags = self._clean_tags(result._task.tags)
-        if Tag.DIAGNOSTIC in cleaned_tags:
+        if Tag.DIAGNOSTIC.value in cleaned_tags:
             self._display.display('# {0}'.format(self.description(result)))
             return
-        if Tag.TODO in cleaned_tags:
-            self.counter.update(TestResult.UNEXPECTED)
+        if Tag.TODO.value in cleaned_tags:
+            self.counter.update(TestResult.UNEXPECTED.value)
         else:
-            self.counter.update(TestResult.PASSED)
+            self.counter.update(TestResult.PASSED.value)
         self.ok(result)
 
     def v2_runner_on_skipped(self, result):
         self.skip(result)
-        self.counter.update(TestResult.SKIPPED)
+        self.counter.update(TestResult.SKIPPED.value)
 
     def v2_playbook_on_stats(self, stats):
         self._display.display('1..{}'.format(sum(self.counter.values())))
