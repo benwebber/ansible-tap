@@ -1,5 +1,7 @@
 # ansible-tap
 
+[![Build Status](https://travis-ci.org/benwebber/ansible-tap.svg?branch=master)](https://travis-ci.org/benwebber/ansible-tap)
+
 [Test Anything Protocol (TAP)](https://testanything.org/) producer for Ansible.
 
 This callback plugin allows you to write TAP test suites as Ansible playbooks. Consider it an Ansible-only alternative to [Serverspec](http://serverspec.org/) and [Testinfra](https://testinfra.readthedocs.io/).
