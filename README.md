@@ -15,17 +15,17 @@ This callback plugin allows you to write TAP test suites as Ansible playbooks. C
 
 While you can't install this plugin directly using `ansible-galaxy`, you can use `ansible-galaxy` to download it:
 
+```
+ansible-galaxy install -p roles/ git+https://github.com/benwebber/ansible-tap.git
+```
+
+Navigate to the role directory and run `make install`:
 
 ```
-ansible-galaxy install https://github.com/benwebber/ansible-tap.git
+make install
 ```
 
-Copy or link the plugin itself to `~/.ansible/plugins/callback`:
-
-```
-mkdir -p ~/.ansible/plugins/callback
-ln -s /etc/ansible/roles/benwebber.tap/library/callback_plugins/tap.py ~/.ansible/plugins/callback/tap.py
-```
+This will copy the plugin to `~/.ansible/plugins/callback`.
 
 ## Usage
 
@@ -33,6 +33,13 @@ Configure Ansible to use this plugin as the standard output callback:
 
 ```
 ANSIBLE_STDOUT_CALLBACK=tap ansible-playbook -i hosts test.yml -l hostname
+```
+
+You can also set it to be the default callback in `ansible.cfg`:
+
+```
+[defaults]
+stdout_callback=tap
 ```
 
 ## Writing Ansible tests
@@ -153,7 +160,7 @@ The [`tests/`](tests/) directory contains an example test suite which produces a
 After installing the plugin, run the test suite with:
 
 ```
-ANSIBLE_STDOUT_CALLBACK=tap ansible-playbook -i localhost, -c local test.yml
+ANSIBLE_STDOUT_CALLBACK=tap ansible-playbook -i localhost, -c local tests/playbooks/test_multiple_with_failures.yml
 ```
 
 You will receive the following TAP stream. You can pass this to any TAP consumer.
