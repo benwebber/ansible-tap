@@ -16,12 +16,13 @@ This callback plugin allows you to write TAP test suites as Ansible playbooks. C
 While you can't install this plugin directly using `ansible-galaxy`, you can use `ansible-galaxy` to download it:
 
 ```
-ansible-galaxy install -p roles/ git+https://github.com/benwebber/ansible-tap.git
+ansible-galaxy install -p roles/ benwebber.tap
 ```
 
 Navigate to the role directory and run `make install`:
 
 ```
+cd roles/benwebber.tap
 make install
 ```
 
