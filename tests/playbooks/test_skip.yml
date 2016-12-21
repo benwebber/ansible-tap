@@ -1,0 +1,9 @@
+---
+- hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: skip
+      assert:
+        that: true
+      ignore_errors: false
+      when: false

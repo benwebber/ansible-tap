@@ -1,0 +1,22 @@
+---
+- hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: setup (1)
+      stat:
+        path: /
+      register: root
+      tags: diagnostic
+
+    - name: setup (2)
+      stat:
+        path: /usr
+      register: usr
+      tags: diagnostic
+
+    - name: use setup
+      assert:
+        that:
+          - root is defined
+          - usr is defined
+      ignore_errors: true

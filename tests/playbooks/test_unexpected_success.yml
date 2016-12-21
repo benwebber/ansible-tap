@@ -1,0 +1,9 @@
+---
+- hosts: localhost
+  gather_facts: fakse
+  tasks:
+    - name: expect failure
+      assert:
+        that: true
+      ignore_errors: true
+      tags: TODO

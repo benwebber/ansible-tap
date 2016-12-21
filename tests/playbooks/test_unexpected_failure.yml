@@ -1,0 +1,8 @@
+---
+- hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: expect success
+      assert:
+        that: false
+      ignore_errors: true

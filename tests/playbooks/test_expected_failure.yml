@@ -1,0 +1,9 @@
+---
+- hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: expect failure
+      assert:
+        that: false
+      ignore_errors: true
+      tags: TODO
