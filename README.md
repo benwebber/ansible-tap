@@ -61,6 +61,30 @@ By default, Ansible will abort the play if any tasks fail. Set `ignore_errors: t
 
 This will ensure Ansible executes the entire test suite, barring any unexpected failure.
 
+If you have a lot of tests, you can set `ignore_errors: true` on a `block`:
+
+```yaml
+- name: check if service is running
+  command: systemctl is-active service
+  register: is_active
+  tags: diagnostic
+
+- name: check if service is enabled
+  command: systemctl is-enabled service
+  register: is_enabled
+  tags: diagnostic
+
+- ignore_errors: true
+  block:
+  - name: assert that service is running
+    assert:
+      that: is_active.rc == 0
+
+  - name: assert that service is enabled
+    assert:
+      that: is_enabled.rc == 0
+```
+
 If a task fails, the plugin will output troubleshooting information as an embedded [YAML document](https://testanything.org/tap-version-13-specification.html#yaml-blocks):
 
 ```tap

@@ -2,36 +2,32 @@
 - hosts: localhost
   gather_facts: false
   tasks:
-    - name: set up next test
-      command: 'true'
-      register: true_
-      ignore_errors: true
-      tags: diagnostic
+    - ignore_errors: true
+      block:
+      - name: set up next test
+        command: 'true'
+        register: true_
+        tags: diagnostic
 
-    - name: pass
-      assert:
-        that: true_.rc == 0
-      ignore_errors: true
+      - name: pass
+        assert:
+          that: true_.rc == 0
 
-    - name: failed
-      assert:
-        that: status is defined
-      ignore_errors: true
+      - name: failed
+        assert:
+          that: status is defined
 
-    - name: expected failure
-      assert:
-        that: false
-      ignore_errors: true
-      tags: TODO
+      - name: expected failure
+        assert:
+          that: false
+        tags: TODO
 
-    - name: unexpected pass
-      assert:
-        that: true
-      ignore_errors: true
-      tags: TODO
+      - name: unexpected pass
+        assert:
+          that: true
+        tags: TODO
 
-    - name: skipped
-      assert:
-        that: false
-      ignore_errors: true
-      when: false
+      - name: skipped
+        assert:
+          that: false
+        when: false
