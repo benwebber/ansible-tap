@@ -1,6 +1,6 @@
 # ansible-tap
 
-[![Build Status](https://travis-ci.org/benwebber/ansible-tap.svg?branch=master)](https://travis-ci.org/benwebber/ansible-tap)
+[![Build Status](https://travis-ci.org/benwebber/ansible-tap.svg?branch=master)](https://travis-ci.org/benwebber/ansible-tap) [![Download from Ansible Galaxy](https://img.shields.io/badge/role-benwebber.tap-blue.svg)](https://galaxy.ansible.com/benwebber/tap/)
 
 [Test Anything Protocol (TAP)](https://testanything.org/) producer for Ansible.
 
