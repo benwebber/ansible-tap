@@ -83,7 +83,18 @@ class TestTAPStream(object):
         assert result.ret == 0
         assert test.category == 'test'
         assert test.ok is True
-        assert test.description == '- assert: skip'
+        assert test.directive.reason == 'Conditional check failed'
+        assert test.skip is True
+        assert test.todo is False
+
+    def test_skip_with_items(self, run_playbook, parser):
+        result = run_playbook('test_skip_with_items.yml')
+        lines = list(parser.parse_text(result.stdout.str()))
+        test = lines[1]
+        assert result.ret == 0
+        assert test.category == 'test'
+        assert test.ok is True
+        assert test.directive.reason == 'No items in the list'
         assert test.skip is True
         assert test.todo is False
 
